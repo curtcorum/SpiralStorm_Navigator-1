@@ -109,10 +109,22 @@ y = reshape(reshape(x,[N*N,nBasis])*V',[N,N,numFramesToKeep]);
 %for i=1:250;imagesc(((abs(y(:,:,i))))); pause(0.1); colormap gray; end
 %clear kdata csm V ;
 
-save(strcat('res_iter_',num2str(lambdaSmoothness),'_',num2str(sigma(ii)),'_',num2str(sl),'.mat'), 'y','-v7.3');
+% bug, velow commented out, what is var 'sl', CAC 190219 
+%save(strcat('res_iter_',num2str(lambdaSmoothness),'_',num2str(sigma(ii)),'_',num2str(sl),'.mat'),'y','-v7.3');
+
 %cd './../../../SpiralcodeUVv2/SpiralcodeUV_new';
     end
 end
+
+%% movie display, CAC 190219
+sy = size(y);
+for idx_t=1:sy(3)
+    colormap gray;
+    imagesc( abs( y(:, :, idx_t)));
+    M(idx_t) = getframe;
+end
+movie(M)
+
 
 %end
 
