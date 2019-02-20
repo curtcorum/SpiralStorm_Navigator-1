@@ -1,0 +1,9 @@
+*.mat
+*.zip
+*~
+CMakeCache.txt
+*.cmake
+CMakeFiles
+Makefile
+doc
+

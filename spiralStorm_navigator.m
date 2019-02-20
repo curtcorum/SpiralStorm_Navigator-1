@@ -14,6 +14,7 @@ N = 340;
 nChannelsToChoose=8;
 numFramesToKeep = 500;
 useGPU = 'true';
+%useGPU = 'false';
 SHRINK_FACTOR = 1.0;
 nBasis = 30;
 lambdaSmoothness = 0.025;
@@ -67,10 +68,12 @@ kdata=reshape(kdata,[nFreqEncoding,ninterleavesPerFrame,numFramesToKeep,nChannel
 % ================================================================
 kdata=reshape(kdata,[nFreqEncoding*ninterleavesPerFrame*numFramesToKeep,nChannelsToChoose]);
 
-[vkdata,vcoilImages] = combine_coilsv1(kdata,coilImages,0.85);
+%[vkdata,vcoilImages] = combine_coilsv1(kdata,coilImages,0.85);
+[vkdata,vcoilImages] = combine_coils(kdata,coilImages,0.85);
 nChannelsToChoose=size(vcoilImages,3);
 kdata=reshape(vkdata,[nFreqEncoding,ninterleavesPerFrame,numFramesToKeep,nChannelsToChoose]);
-csm=giveEspiritMaps(reshape(vcoilImages,[size(vcoilImages,1), size(vcoilImages,2), nChannelsToChoose]),0.005);
+%csm=giveEspiritMaps(reshape(vcoilImages,[size(vcoilImages,1), size(vcoilImages,2), nChannelsToChoose]),0.005);
+csm=giveEspiritMaps( reshape( vcoilImages, [size( vcoilImages, 1), size( vcoilImages, 2), nChannelsToChoose]));
 coilImages=vcoilImages;
 
 ktraj_scaled=reshape(ktraj_scaled,[nFreqEncoding,ninterleavesPerFrame,numFramesToKeep]);
@@ -91,10 +94,11 @@ Sbasis=Sbasis(end-nBasis+1:end,end-nBasis+1:end);
 %% ==============================================================
 % % Final Reconstruction
 % % ============================================================= 
-factor=0;
+%factor=0;
 ktraj_scaled=reshape(ktraj_scaled,[nFreqEncoding*ninterleavesPerFrame,numFramesToKeep]);
 kdata=reshape(kdata,[nFreqEncoding*ninterleavesPerFrame,numFramesToKeep,nChannelsToChoose]);
-tic; x = solveUV(ktraj_scaled,kdata,csm, V, N, 60,lambdaSmoothness*Sbasis,useGPU,factor);toc
+%tic; x = solveUV(ktraj_scaled,kdata,csm, V, N, 60,lambdaSmoothness*Sbasis,useGPU,factor);toc
+tic; x = solveUV(ktraj_scaled,kdata,csm, V, N, 60,lambdaSmoothness*Sbasis,useGPU);toc
 y = reshape(reshape(x,[N*N,nBasis])*V',[N,N,numFramesToKeep]);
 
 %% ==============================================================
@@ -105,10 +109,23 @@ y = reshape(reshape(x,[N*N,nBasis])*V',[N,N,numFramesToKeep]);
 %for i=1:250;imagesc(((abs(y(:,:,i))))); pause(0.1); colormap gray; end
 %clear kdata csm V ;
 
-save(strcat('res_iter_',num2str(lambdaSmoothness),'_',num2str(sigma(ii)),'_',num2str(sl),'.mat'), 'y','-v7.3');
+% bug, velow commented out, what is var 'sl', CAC 190219 
+%save(strcat('res_iter_',num2str(lambdaSmoothness),'_',num2str(sigma(ii)),'_',num2str(sl),'.mat'),'y','-v7.3');
+
 %cd './../../../SpiralcodeUVv2/SpiralcodeUV_new';
     end
 end
+
+%% movie display, CAC 190219
+sy = size(y);
+for idx_t=1:sy(3)
+    colormap gray;
+    imagesc( abs( y(:, :, idx_t)));
+    M(idx_t) = getframe;
+end
+movie(M)
+save('recon');
+
 
 %end
 

@@ -23,23 +23,14 @@ SET(PATCH_OUTPUT_PATH ${PATCH_OUTPUT_DIR}/gpuNUFFT.zip)
 SET(MEX_EXPORT_DIR ${PROJECT_SOURCE_DIR}/../gpuNUFFT/@gpuNUFFT/private CACHE STRING "Folder in which mex files are exported to.")
 
 #Searching CUDA
-FIND_PACKAGE(CUDA REQUIRED)
+FIND_PACKAGE(CUDA 9.1 REQUIRED)
 
 #Searching MATLAB
-if(WIN32)
-  SET(MATLAB_ROOT_DIR "C:\\Program Files\\MATLAB\\R2011a" CACHE STRING "MATLAB Installation Directory")
-elseif(UNIX AND APPLE)
-  SET(MATLAB_ROOT_DIR "/Applications/MATLAB_R2010b.app" CACHE STRING "MATLAB Installation Directory")
-elseif(UNIX)
-  SET(MATLAB_ROOT_DIR "/opt/apps/matlab/R2016b" CACHE STRING "MATLAB Installation Directory")
-endif()
-
-SET(MATLAB_DIR = "${MATLAB_ROOT_DIR}")
-
 FIND_PACKAGE(Matlab)
 
 if (Matlab_FOUND)
   MESSAGE(STATUS "MATLAB Installation found via script variable Matlab_ROOT_DIR in ${Matlab_ROOT_DIR}")
+  SET(MATLAB_ROOT_DIR ${Matlab_ROOT_DIR})
 endif()
 
 IF (EXISTS "${MATLAB_ROOT_DIR}")
