@@ -124,6 +124,7 @@ for idx_t=1:sy(3)
     M(idx_t) = getframe;
 end
 movie(M)
+save('recon');
 
 
 %end
