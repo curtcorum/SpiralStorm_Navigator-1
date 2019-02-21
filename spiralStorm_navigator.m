@@ -58,8 +58,8 @@ lam = [0.1];
 % new parameters
 nIterations = 15;       %nIterations = 60;      % iterations for final reconstuction
 nIterations_csm = 20;   %nIterations_csm = 70;  % iterations for coil sensitivity map
-eigThresh_1 = 0.02;      %eigThresh_1 = 0.008:  % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
-eigThresh_2 = 0.95;     % eigThresh_2 = 0.95;   % threshold of eigen vector decomposition in image space.
+eigThresh_1 = 0.02;     %eigThresh_1 = 0.008:   % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
+eigThresh_2 = 0.95;     %eigThresh_2 = 0.95;    % threshold of eigen vector decomposition in image space.
 %%
 % % ==============================================================
 % % Load the data
@@ -126,7 +126,7 @@ kdata = reshape( kdata, [nFreqEncoding*ninterleavesPerFrame*numFramesToKeep, nCh
 [vkdata, vcoilImages] = combine_coils( kdata, coilImages, 0.85); % 0.85 parameter in variable, *** CAC 190220 
 nChannelsToChoose = size( vcoilImages, 3);
 kdata = reshape( vkdata, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
-csm = giveEspiritMaps( reshape( vcoilImages, [size( vcoilImages, 1), size( vcoilImages, 2), nChannelsToChoose]));
+csm = giveEspiritMaps( reshape( vcoilImages, [size( vcoilImages, 1), size( vcoilImages, 2), nChannelsToChoose], eigThresh_1, eigThresh_2));
 coilImages = vcoilImages;
 
 ktraj_scaled = reshape( ktraj_scaled, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep]);

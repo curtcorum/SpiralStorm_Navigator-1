@@ -8,7 +8,7 @@ function maps = giveEspiritMaps( coilimages, varargin)
 %
 % CAC 190220 - varargin added for updating eigThresh
 
-eigThresh_1 = 0.02 % Threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
+eigThresh_1 = 0.02; % Threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
 eigThresh_2 = 0.95; % threshold of eigen vector decomposition in image space.
 if nargin > 1; eigThresh_1 = varargin{1}; end
 if nargin > 2; eigThresh_2 = varargin{2}; end
