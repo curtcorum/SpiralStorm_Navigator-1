@@ -46,7 +46,7 @@ framesToDelete = 0;
 ninterleavesPerFrame = 6;
 N = 340;                % reconstruction matrix size
 nChannelsToChoose = 8;  % starting number of virtual coils
-numFramesToKeep = 100;  %numFramesToKeep = 500;
+numFramesToKeep = 522;  %numFramesToKeep = 500;
 useGPU = 'true';        % 'false' not working yet
 SHRINK_FACTOR = 1.0;
 nBasis = 30;
