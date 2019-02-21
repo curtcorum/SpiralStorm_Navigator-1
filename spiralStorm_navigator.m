@@ -44,20 +44,20 @@ if FLAGS.DEBUG >= 4; path,  end
 spiralsToDelete = 60;
 framesToDelete = 0;
 ninterleavesPerFrame = 6;
-N = 340;
-nChannelsToChoose = 8;
-numFramesToKeep = 100; %numFramesToKeep = 500;
-useGPU = 'true';
+N = 340;                % reconstruction matrix size
+nChannelsToChoose = 8;  % starting number of virtual coils
+numFramesToKeep = 100;  %numFramesToKeep = 500;
+useGPU = 'true';        % 'false' not working yet
 SHRINK_FACTOR = 1.0;
 nBasis = 30;
 lambdaSmoothness = 0.025;
 cRatioI = 1:nChannelsToChoose;
-sigma = [4.5];
-lam = [0.1];
+sigma = [4.5];          % tuning prameter
+lam = [0.1];            % tuning prameter
 
 % new parameters
-nIterations = 15;       %nIterations = 60;      % iterations for final reconstuction
-nIterations_csm = 20;   %nIterations_csm = 70;  % iterations for coil sensitivity map
+nIterations = 50;       %nIterations = 60;      % iterations for final reconstuction
+nIterations_csm = 50;   %nIterations_csm = 70;  % iterations for coil sensitivity map
 eigThresh_1 = 0.02;     %eigThresh_1 = 0.008:   % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
 eigThresh_2 = 0.95;     %eigThresh_2 = 0.95;    % threshold of eigen vector decomposition in image space.
 %%
@@ -126,7 +126,7 @@ kdata = reshape( kdata, [nFreqEncoding*ninterleavesPerFrame*numFramesToKeep, nCh
 [vkdata, vcoilImages] = combine_coils( kdata, coilImages, 0.85); % 0.85 parameter in variable, *** CAC 190220 
 nChannelsToChoose = size( vcoilImages, 3);
 kdata = reshape( vkdata, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
-csm = giveEspiritMaps( reshape( vcoilImages, [size( vcoilImages, 1), size( vcoilImages, 2), nChannelsToChoose], eigThresh_1, eigThresh_2));
+csm = giveEspiritMaps( reshape( vcoilImages, [size( vcoilImages, 1), size( vcoilImages, 2), nChannelsToChoose]), eigThresh_1, eigThresh_2);
 coilImages = vcoilImages;
 
 ktraj_scaled = reshape( ktraj_scaled, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep]);
