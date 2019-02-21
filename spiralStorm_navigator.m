@@ -6,7 +6,7 @@
 clear all;      % warn about this first, *** CAC 190220
 
 ss_nav_version = '190220.01';  % version
-
+runtime_str = datestr(now, 'yymmdd_HHMMSS');
 startPath = pwd;
 
 FLAGS.DEBUG = 2;    %0 off, 1 minimal, 2 log , 3 more, 4 lots...
@@ -15,9 +15,9 @@ FLAGS.WARNING = 1;  %0 off, 1 on
 if FLAGS.WARNING >= 1; warning('ON'); else warning('OFF'); end
 
 if FLAGS.DEBUG >= 1; tstart = tic; end
-if FLAGS.DEBUG >= 2; diary_file = strcat( 'spiralStorm_navigator', '.log'); diary( diary_file); end
+if FLAGS.DEBUG >= 2; diary_file = strcat( 'spiralstorm_nav_', runtime_str, '.log'); diary( diary_file); end
 if FLAGS.DEBUG >= 1; fprintf( '===== spiralStorm_navigator version: %s =====\n', ss_nav_version);  end
-if FLAGS.DEBUG >= 2; fprintf( '%s\n', datestr(now)); end
+if FLAGS.DEBUG >= 2; fprintf( '%s\n', runtime_str); end
 
 if FLAGS.DEBUG >= 3
     ver;
@@ -26,6 +26,7 @@ if FLAGS.DEBUG >= 3
     system('git remote -v; git branch -v --no-abbrev; git status --porcelain;');
     fprintf( '==================\n');
 end
+% add diff for DEBUG >= 4, *** CAC 190221
 
 if FLAGS.DEBUG >= 1; fprintf( 'clearing variables, saving matlabpath, updating path...\n');  end
 
@@ -46,7 +47,7 @@ framesToDelete = 0;
 ninterleavesPerFrame = 6;
 N = 340;                % reconstruction matrix size
 nChannelsToChoose = 8;  % starting number of virtual coils
-numFramesToKeep = 522;  %numFramesToKeep = 500;
+numFramesToKeep = 122;  %numFramesToKeep = 500;
 useGPU = 'true';        % 'false' not working yet
 SHRINK_FACTOR = 1.0;
 nBasis = 30;
@@ -56,8 +57,8 @@ sigma = [4.5];          % tuning prameter
 lam = [0.1];            % tuning prameter
 
 % new parameters
-nIterations = 50;       %nIterations = 60;      % iterations for final reconstuction
-nIterations_csm = 50;   %nIterations_csm = 70;  % iterations for coil sensitivity map
+nIterations = 20;       %nIterations = 60;      % iterations for final reconstuction
+nIterations_csm = 20;   %nIterations_csm = 70;  % iterations for coil sensitivity map
 eigThresh_1 = 0.02;     %eigThresh_1 = 0.008:   % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
 eigThresh_2 = 0.95;     %eigThresh_2 = 0.95;    % threshold of eigen vector decomposition in image space.
 %%
@@ -206,9 +207,10 @@ if FLAGS.DEBUG >= 1; toc( tmv), end
 
 %% save everything, CAC 190220
 if FLAGS.DEBUG >= 1; tsave = tic; end
-if FLAGS.DEBUG >= 1; fprintf( 'saving everything in: recon_please_rename.mat...');  end
+if FLAGS.DEBUG >= 1; fprintf( 'saving everything in: spiralstorm_nav_recon_please_rename.mat...');  end
 
-save( 'recon_please_rename');  % add a date/time stamp to name, *** CAC 190220
+save_file = strcat( 'spiralstorm_nav_', runtime_str);
+save( save_file);
 
 if FLAGS.DEBUG >= 1; toc( tsave), end
 
@@ -216,6 +218,7 @@ if FLAGS.DEBUG >= 1; toc( tsave), end
 path( mlp);
 
 %% total elapsed time
-if FLAGS.DEBUG >= 1; toc( tstart), end
+if FLAGS.DEBUG >= 1; fprintf( 'Total ');toc( tstart), end
+if FLAGS.DEBUG >= 2; diary off; end
 
 
