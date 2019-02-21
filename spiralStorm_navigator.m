@@ -210,13 +210,13 @@ movie( Mv, 999);
 if FLAGS.DEBUG >= 1; toc( tmv), end
 
 %% save everything, CAC 190220
-if FLAGS.DEBUG >= 1; tsave = tic; end
-if FLAGS.DEBUG >= 1;
+if FLAGS.DEBUG >= 2; tsave = tic; end
+if FLAGS.DEBUG >= 2;
     save_file = strcat( 'spiralstorm_nav_', runtime_str);
     fprintf( 'saving everything in:', save_file, '.mat...');
     save( save_file);
 end
-if FLAGS.DEBUG >= 1; toc( tsave), end
+if FLAGS.DEBUG >= 2; toc( tsave), end
 
 %% restore environment
 path( mlp);
