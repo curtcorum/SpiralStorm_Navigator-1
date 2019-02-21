@@ -59,8 +59,8 @@ sigma = [4.5];          % tuning parameter
 lam = [0.1];            % tuning parameter
 
 % new parameters
-nIterations = 20;       %nIterations = 60;      % iterations for final reconstuction
-nIterations_csm = 20;   %nIterations_csm = 70;  % iterations for coil sensitivity map
+nIterations = 30;       %nIterations = 60;      % iterations for final reconstuction
+nIterations_csm = 30;   %nIterations_csm = 70;  % iterations for coil sensitivity map
 eigThresh_1 = 0.02;     %eigThresh_1 = 0.008:   % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
 eigThresh_2 = 0.95;     %eigThresh_2 = 0.95;    % threshold of eigen vector decomposition in image space.
 %%
@@ -213,7 +213,7 @@ if FLAGS.DEBUG >= 1; toc( tmv), end
 if FLAGS.DEBUG >= 2; tsave = tic; end
 if FLAGS.DEBUG >= 2;
     save_file = strcat( 'spiralstorm_nav_', runtime_str);
-    fprintf( 'saving everything in:', save_file, '.mat...');
+    fprintf( 'saving results file: %s.mat...', save_file);
     save( save_file);
 end
 if FLAGS.DEBUG >= 2; toc( tsave), end
@@ -223,6 +223,6 @@ path( mlp);
 
 %% total elapsed time
 if FLAGS.DEBUG >= 1; fprintf( 'Total ');toc( tstart), end
-if FLAGS.DEBUG >= 2; diary off; fprintf( 'saved ', diary_file, '.log'); end
+if FLAGS.DEBUG >= 2; diary off; fprintf( 'saving log file: %s\n', diary_file); end
 
 
