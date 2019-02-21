@@ -11,7 +11,7 @@ ss_nav_version = '190220.01';  % version
 runtime_str = datestr(now, 'yymmdd_HHMMSS');
 startPath = pwd;
 
-FLAGS.DEBUG = 2;    %0 off, 1 minimal, 2 log , 3 more, 4 lots...
+FLAGS.DEBUG = 2;    %0 off, 1 timing, 2 log/save, 3 more, 4 lots...
 FLAGS.WARNING = 1;  %0 off, 1 on
 
 if FLAGS.WARNING >= 1; warning('ON'); else warning('OFF'); end
@@ -211,11 +211,11 @@ if FLAGS.DEBUG >= 1; toc( tmv), end
 
 %% save everything, CAC 190220
 if FLAGS.DEBUG >= 1; tsave = tic; end
-if FLAGS.DEBUG >= 1; fprintf( 'saving everything in: spiralstorm_nav_recon_please_rename.mat...');  end
-
-save_file = strcat( 'spiralstorm_nav_', runtime_str);
-save( save_file);
-
+if FLAGS.DEBUG >= 1;
+    save_file = strcat( 'spiralstorm_nav_', runtime_str);
+    fprintf( 'saving everything in:', save_file, '.mat...');
+    save( save_file);
+end
 if FLAGS.DEBUG >= 1; toc( tsave), end
 
 %% restore environment
@@ -223,6 +223,6 @@ path( mlp);
 
 %% total elapsed time
 if FLAGS.DEBUG >= 1; fprintf( 'Total ');toc( tstart), end
-if FLAGS.DEBUG >= 2; diary off; end
+if FLAGS.DEBUG >= 2; diary off; fprintf( 'saved ', diary_file, '.log'); end
 
 
