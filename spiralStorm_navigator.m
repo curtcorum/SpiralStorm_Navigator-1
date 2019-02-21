@@ -1,18 +1,52 @@
-clear all
+%spiralStorm_navigator.m
+%
+% beginnings of code cleanup, CAC 190219
 
+%% Environment setup, parameters, logging and debugging
+clear all;      % warn about this first, *** CAC 190220
+
+ss_nav_version = '190220.01';  % version
+
+startPath = pwd;
+
+FLAGS.DEBUG = 2;    %0 off, 1 minimal, 2 log , 3 more, 4 lots...
+FLAGS.WARNING = 1;  %0 off, 1 on
+
+if FLAGS.WARNING >= 1; warning('ON'); else warning('OFF'); end
+
+if FLAGS.DEBUG >= 1; tstart = tic; end
+if FLAGS.DEBUG >= 2; diary_file = strcat( 'spiralStorm_navigator', '.log'); diary( diary_file); end
+if FLAGS.DEBUG >= 1; fprintf( '===== spiralStorm_navigator version: %s =====\n', ss_nav_version);  end
+if FLAGS.DEBUG >= 2; fprintf( '%s\n', datestr(now)); end
+
+if FLAGS.DEBUG >= 3
+    ver;
+    fprintf( '==================\n');
+    fprintf( 'Git information...\n');
+    system('git remote -v; git branch -v --no-abbrev; git status --porcelain;');
+    fprintf( '==================\n');
+end
+
+if FLAGS.DEBUG >= 1; fprintf( 'clearing variables, saving matlabpath, updating path...\n');  end
+
+%save and setup paths
+mlp = path;
+restoredefaultpath;
 addpath( './csm');
 addpath( './Utils');
-addpath( './nufft_toolbox_cpu');
-addpath( genpath( './gpuNUFFT'));
-addpath( genpath( './CUDA'));
+%addpath( './nufft_toolbox_cpu');
+%addpath( genpath( './gpuNUFFT'));
+%addpath( genpath( './CUDA'));
 
-%% Reconstruction parameters
+if FLAGS.DEBUG >= 4; path,  end
+
+% Reconstruction parameters
 spiralsToDelete = 60;
 framesToDelete = 0;
 ninterleavesPerFrame = 6;
 N = 340;
 nChannelsToChoose = 8;
-numFramesToKeep = 500;
+numFramesToKeep = 100; %numFramesToKeep = 500;
 useGPU = 'true';
 SHRINK_FACTOR = 1.0;
 nBasis = 30;
@@ -20,21 +54,31 @@ lambdaSmoothness = 0.025;
 cRatioI = 1:nChannelsToChoose;
 sigma = [4.5];
 lam = [0.1];
+
+% new parameters
+nIterations = 15;       %nIterations = 60;   % iterations for final reconstuction
+nIterations_csm = 20;   %nIterations_csm = 70;   % iterations for coil sensitivity map
 %%
 % % ==============================================================
 % % Load the data
-% % ============================================================== 
-load( 'Series8.mat'); 
-%kdata = kdata(:,:,:,4); % Fourth Slice Data
+% % ==============================================================
+if FLAGS.DEBUG >= 1; tload = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'loading data...');  end
 
+load( 'Series8.mat'); 
+kdata = kdata(:,:,:,4); % Fourth Slice Data
+
+if FLAGS.DEBUG >= 1; toc( tload), end
 
  %% =========================================
  % -------------Preprocessing Data-------------%
  %===========================================
-[nFreqEncoding, nCh,numberSpirals] = size( kdata);
+[nFreqEncoding, nCh, numberSpirals] = size( kdata);
 numFrames = floor( (numberSpirals-spiralsToDelete)/ninterleavesPerFrame);
 kdata = kdata(:, cRatioI(1:nChannelsToChoose), spiralsToDelete + 1:numberSpirals);
-k = k(:, spiralsToDelete + 1:numberSpirals);
+%numberSpirals
+%size( k)
+k = k(:, spiralsToDelete+1:numberSpirals);
 w = dcf(:, spiralsToDelete + 1:numberSpirals);
 kdata = kdata(:, :, 1:numFrames*ninterleavesPerFrame);
 k = k(:, 1:numFrames*ninterleavesPerFrame);
@@ -47,27 +91,34 @@ ktraj = reshape( ktraj, [nFreqEncoding, ninterleavesPerFrame, numFrames]);
 w = reshape( w, [nFreqEncoding, ninterleavesPerFrame, numFrames]);
 
 % Keeping only numFramesToKeep
-
 kdata = kdata(:, :, framesToDelete + 1:numFramesToKeep + framesToDelete, cRatioI(1:nChannelsToChoose));
 ktraj = ktraj(:, :, framesToDelete + 1:numFramesToKeep + framesToDelete);
+
 %save data kdata ktraj dcf
 
 %% ==============================================================
 % Scaling trajectory
 % ==============================================================
-
 ktraj_scaled =  SHRINK_FACTOR*ktraj*N;
 
 %% ==============================================================
 % Compute the coil sensitivity map
-% ============================================================== 
+% ==============================================================
+if FLAGS.DEBUG >= 1; tcsm = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'computing coil sensitivity map for %d channels...', nChannelsToChoose);  end
+
 ktraj_scaled = reshape( ktraj_scaled, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep]);
 kdata = reshape( kdata, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
-[coilImages] = coil_sens_map_NUFFT( kdata, ktraj_scaled, N, useGPU);
+[coilImages] = coil_sens_map_NUFFT( kdata, ktraj_scaled, N, useGPU, nIterations_csm);
+
+if FLAGS.DEBUG >= 1; toc( tcsm), end
 
 %% ===============================================================
 % Compute coil compresession
 % ================================================================
+if FLAGS.DEBUG >= 1; tccc = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'computing coil compression...');  end
+
 kdata = reshape( kdata, [nFreqEncoding*ninterleavesPerFrame*numFramesToKeep, nChannelsToChoose]);
 
 [vkdata, vcoilImages] = combine_coils( kdata, coilImages, 0.85); % 0.85 parameter in variable, *** CAC 190220 
@@ -79,28 +130,45 @@ coilImages = vcoilImages;
 ktraj_scaled = reshape( ktraj_scaled, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep]);
 kdata = reshape( kdata, [nFreqEncoding, ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
 
+if FLAGS.DEBUG >= 1; toc( tccc), end
+
 %% ==============================================================
 % % Compute the weight matrix
-% % ============================================================= 
+% % =============================================================
+if FLAGS.DEBUG >= 1; tcwm = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'computing weight matrix...');  end
+
 no_ch = size( csm, 3);
 Nav = permute( kdata(:, 1, :, :), [1, 2, 4, 3]);
 
-for ii = 1:size( sigma, 2)
-    for jj = 1:size( lam, 2)
-[~, ~, L] = estimateLapKernelLR( reshape( Nav, [nFreqEncoding*no_ch, numFramesToKeep]), sigma(ii), lam(jj));
+% ss2 = size( sigma, 2)
+% sl2 = size( lam, 2)
+% for ii = 1:size( sigma, 2)
+%     for jj = 1:size( lam, 2)
+%[~, ~, L] = estimateLapKernelLR( reshape( Nav, [nFreqEncoding*no_ch, numFramesToKeep]), sigma(ii), lam(jj));
+
+[~, ~, L] = estimateLapKernelLR( reshape( Nav, [nFreqEncoding*no_ch, numFramesToKeep]), sigma(1), lam(1));
+
 [~, Sbasis, V] = svd( L);
 V = V(:, end - nBasis + 1:end);
 Sbasis = Sbasis(end - nBasis + 1:end, end - nBasis + 1:end);
 
+if FLAGS.DEBUG >= 1; toc( tcwm), end
+
 %% ==============================================================
 % % Final Reconstruction
 % % ============================================================= 
+if FLAGS.DEBUG >= 1; tfr = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'final reconstruction...');  end
+
 ktraj_scaled = reshape( ktraj_scaled,[nFreqEncoding*ninterleavesPerFrame,numFramesToKeep]);
 kdata = reshape( kdata, [nFreqEncoding*ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
-tic;
-x = solveUV( ktraj_scaled, kdata, csm, V, N, 60, lambdaSmoothness*Sbasis, useGPU);
-toc
+
+x = solveUV( ktraj_scaled, kdata, csm, V, N, nIterations, lambdaSmoothness*Sbasis, useGPU); % nIterations now variable at top, CAC 190220
+
 y = reshape( reshape( x, [N*N, nBasis]) * V', [N, N, numFramesToKeep]);
+
+if FLAGS.DEBUG >= 1; toc( tfr), end
 
 %% ==============================================================
 % % Save and Display results
@@ -114,18 +182,38 @@ y = reshape( reshape( x, [N*N, nBasis]) * V', [N, N, numFramesToKeep]);
 %save(strcat('res_iter_',num2str(lambdaSmoothness),'_',num2str(sigma(ii)),'_',num2str(sl),'.mat'),'y','-v7.3');
 
 %cd './../../../SpiralcodeUVv2/SpiralcodeUV_new';
-    end
-end
+%     end
+% end
+
+
 
 %% movie display, CAC 190219
+if FLAGS.DEBUG >= 1; tmv = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'making movie...');  end
+
 sy = size(y);
 for idx_t = 1:sy(3)
     colormap gray;
     imagesc( abs( y(:, :, idx_t)));
     Mv(idx_t) = getframe;
 end
+
 movie( Mv);
 
+if FLAGS.DEBUG >= 1; toc( tmv), end
+
 %% save everything, CAC 190220
-save( 'recon_cp_to_new_name');  % add a date/time stamp to name, *** CAC 190220
+if FLAGS.DEBUG >= 1; tsave = tic; end
+if FLAGS.DEBUG >= 1; fprintf( 'saving everything in: recon_please_rename.mat...');  end
+
+save( 'recon_please_rename');  % add a date/time stamp to name, *** CAC 190220
+
+if FLAGS.DEBUG >= 1; toc( tsave), end
+
+%% restore environment
+path( mlp);
+
+%% total elapsed time
+if FLAGS.DEBUG >= 1; toc( tstart), end
+
 

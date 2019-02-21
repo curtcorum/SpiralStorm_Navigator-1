@@ -1,4 +1,5 @@
 *.txt
+*.log
 *.zip
 *~
 CMakeCache.txt
