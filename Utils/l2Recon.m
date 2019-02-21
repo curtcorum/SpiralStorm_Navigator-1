@@ -21,7 +21,7 @@ end
 [~,~,L]=estimateLapKernelLR(reshape(Atb,[size(Atb,1)*size(Atb,2),size(Atb,3)]),1e-5,1);
 %ATA = @(x) SenseATA(x,FT,csm,N,nFrames,nCh) + lambda*x;
 ATA = @(x) SenseATA(x,FT,csm,N,nFrames,nCh) + lambda*XL(x,L,N,nFrames);
-data = pcg(ATA,Atb(:),1e-5,30);
+data = pcg_quiet(ATA,Atb(:),1e-5,30);
 data = reshape(data,[N,N,nFrames]);
 
 end

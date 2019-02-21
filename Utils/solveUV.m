@@ -20,7 +20,7 @@ else
     AtA = @(x) AtA_UV( FT, x, V, csm, nSamplesPerFrame);
 end
 
-x = pcg( AtA, Atb(:), 1e-5, nIterations);
+x = pcg_quiet( AtA, Atb(:), 1e-5, nIterations);
 x = reshape( x, [N, N, nbasis]);
 
 end

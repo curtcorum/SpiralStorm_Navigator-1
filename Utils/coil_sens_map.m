@@ -17,7 +17,7 @@ end
 [A2, B2] = creatA_zeropadded(transpose(k(:)),N,2*N);
 Q = ifftshift(fft2(fftshift(INFT_new(ones(n*nint*nf,1),A2,B2,(w(:)))/N^2)));
 M=@(u)AhA(reshape(u,[size(coilimages,1), size(coilimages,2), nCh]),Q,N,nCh);
-coilImages = pcg(M,coilimages(:),1e-6,100);
+coilImages = pcg_quiet(M,coilimages(:),1e-6,100);
 
 csm=giveEspiritMaps(reshape(coilimages,[size(coilimages,1), size(coilimages,2), nCh]));
 csm=fftshift(fftshift(csm,1),2);
