@@ -1,8 +1,10 @@
 
-function [K, X, A] = estimateLapKernelLR(nav, sigSq, lambda)
+function [K, X, A] = estimateLapKernelLR( nav, sigSq, lambda)
+%function [K, X, A] = estimateLapKernelLR( nav, sigSq, lambda)
+%
 
-nf = size(nav,2);
-nav=double(nav);
+nf = size( nav, 2);
+nav = double( nav);
 
 p = 1;
 q = 1-p/2;

@@ -1,21 +1,26 @@
-function maps = giveEspiritMaps(coilimages)
+function maps = giveEspiritMaps( coilimages, varargin)
+%function maps = giveEspiritMaps( coilimages, varargin)
+%function maps = giveEspiritMaps( coilimages, eigThresh_1, eigThresh_2)
+%
+% eigThresh_1 = 0.02 (default) for calibration matrix
+%
+% eigThresh_2 = 0.95 (default) for calibration matrix
+%
+% CAC 190220 - varargin added for updating eigThresh
 
-coilimages = fftshift(fftshift(coilimages,1),2);
-DATA = fftshift(fftshift(fft2(coilimages),1),2);
+eigThresh_1 = 0.02; % Threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
+eigThresh_2 = 0.95; % threshold of eigen vector decomposition in image space.
+if nargin > 1; eigThresh_1 = varargin{1}; end
+if nargin > 2; eigThresh_2 = varargin{2}; end
+if nargin > 3; warning('too many arguments'); end
 
-[sx,sy,Nc] = size(DATA);
+coilimages = fftshift( fftshift( coilimages, 1), 2);
+DATA = fftshift( fftshift( fft2( coilimages), 1), 2);
+
+[sx, sy, Nc] = size( DATA);
 %DATA=DATA(:,:,1);
 ncalib = 64; 
-ksize = [4,4]; 
-
-
-% Threshold for picking singular vercors of the calibration matrix
-% (relative to largest singlular value.
-
-eigThresh_1 = 0.02%0.01;%0.005
-
-% threshold of eigen vector decomposition in image space. 
-eigThresh_2 = 0.95;
+ksize = [4, 4];
 
 % crop a calibration area
 calib = crop(DATA,[ncalib,ncalib],Nc);

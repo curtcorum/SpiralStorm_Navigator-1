@@ -12,7 +12,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/bin)
 
 #for older CMAKE versions these vars have to be set
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../@gpuNUFFT/private)
 SET(ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 #patch output path
@@ -20,7 +20,7 @@ SET(PATCH_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/deploy)
 SET(PATCH_OUTPUT_PATH ${PATCH_OUTPUT_DIR}/gpuNUFFT.zip)
 
 #mex file export dir
-SET(MEX_EXPORT_DIR ${PROJECT_SOURCE_DIR}/../gpuNUFFT/@gpuNUFFT/private CACHE STRING "Folder in which mex files are exported to.")
+SET(MEX_EXPORT_DIR ${PROJECT_SOURCE_DIR}/../@gpuNUFFT/private CACHE STRING "Folder in which mex files are exported to.")
 
 #Searching CUDA
 FIND_PACKAGE(CUDA 9.1 REQUIRED)
@@ -40,7 +40,7 @@ else()
 endif()
 
 #Options
-#General DEBUG output 
+#General DEBUG output
 SET (DEBUG false)
 OPTION(WITH_DEBUG "Enable DEBUG messages" OFF)
 if (WITH_DEBUG)
@@ -56,13 +56,13 @@ if (WITH_MATLAB_DEBUG)
 endif()
 MESSAGE(STATUS "Setting MATLAB DEBUG Option to ${MATLAB_DEBUG}")
 
-#Enable ATOMIC kernel  
+#Enable ATOMIC kernel
 SET(GEN_ATOMIC ON CACHE BOOL "Enable atomic kernel generation (Compute Capability 2.0 needed). Only turn it off when old architectures (<2.0) have to be supported.")
 
 #Enable Google Tests
 SET(GEN_TESTS OFF CACHE BOOL "Enable and generate simple GOOGLE test framework unit tests")
 
-#Enable/Disable GPU double precision 
+#Enable/Disable GPU double precision
 SET(GPU_DOUBLE_PREC OFF CACHE BOOL "Enable double precision floating point operations on GPU (Compute Capability 1.3 needed)")
 
 if(GPU_DOUBLE_PREC)
@@ -127,7 +127,7 @@ SET(GPUNUFFT_INCLUDE ${GPUNUFFT_INC_DIR}/cuda_utils.hpp
 										 ${GPUNUFFT_INC_DIR}/balanced_gpuNUFFT_operator.hpp
                      ${GPUNUFFT_INC_DIR}/gpuNUFFT_operator_factory.hpp
 										 ${GPUNUFFT_INC_DIR}/balanced_texture_gpuNUFFT_operator.hpp)
-					 
+
 SET(MATLAB_HELPER_INCLUDE ${GPUNUFFT_INC_DIR}/matlab_helper.h)
 SET(CONFIG_INCLUDE ${GPUNUFFT_INC_DIR}/config.hpp ${GPUNUFFT_INC_DIR}/cufft_config.hpp)
 
@@ -163,17 +163,16 @@ if (GEN_ZIP)
 
 	MESSAGE(${PATCH_OUTPUT_PATH})
 	execute_process(
-	    COMMAND 
-		"find" "${CMAKE_CURRENT_SOURCE_DIR}/src" "-not" "-name" "CMakeLists.txt" "-not" "-type" "d" 
+	    COMMAND
+		"find" "${CMAKE_CURRENT_SOURCE_DIR}/src" "-not" "-name" "CMakeLists.txt" "-not" "-type" "d"
 OUTPUT_VARIABLE _file_list
 	)
-#MESSAGE(${_file_list})	
-	execute_process( 
-    COMMAND "${Java_JAR_EXECUTABLE}" "cfM" "${PATCH_OUTPUT_PATH}" "`" 
+#MESSAGE(${_file_list})
+	execute_process(
+    COMMAND "${Java_JAR_EXECUTABLE}" "cfM" "${PATCH_OUTPUT_PATH}" "`"
 		"find" "${CMAKE_CURRENT_SOURCE_DIR}/src" "-not" "-name" "CMakeLists.txt" "-not" "-type" "d" "`"
-#		"-C" ${CMAKE_CURRENT_SOURCE_DIR} "inc" 
+#		"-C" ${CMAKE_CURRENT_SOURCE_DIR} "inc"
 #		"-C" ${CMAKE_CURRENT_SOURCE_DIR} "matlab/gpuNUFFT"
 	    RESULT_VARIABLE _result
 	)
 endif(GEN_ZIP)
-
