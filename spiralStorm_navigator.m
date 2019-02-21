@@ -1,5 +1,7 @@
 %spiralStorm_navigator.m
 %
+% Ahmed, Abdul Haseeb <abdul-ahmed@uiowa.edu>
+%
 % beginnings of code cleanup, CAC 190219
 
 %% Environment setup, parameters, logging and debugging
@@ -53,8 +55,8 @@ SHRINK_FACTOR = 1.0;
 nBasis = 30;
 lambdaSmoothness = 0.025;
 cRatioI = 1:nChannelsToChoose;
-sigma = [4.5];          % tuning prameter
-lam = [0.1];            % tuning prameter
+sigma = [4.5];          % tuning parameter
+lam = [0.1];            % tuning parameter
 
 % new parameters
 nIterations = 20;       %nIterations = 60;      % iterations for final reconstuction
@@ -144,6 +146,8 @@ if FLAGS.DEBUG >= 1; fprintf( 'computing weight matrix...');  end
 no_ch = size( csm, 3);
 Nav = permute( kdata(:, 1, :, :), [1, 2, 4, 3]);
 
+%uncomment for tuning matrix of recons
+%
 % ss2 = size( sigma, 2)
 % sl2 = size( lam, 2)
 % for ii = 1:size( sigma, 2)
@@ -164,7 +168,7 @@ if FLAGS.DEBUG >= 1; toc( tcwm), end
 if FLAGS.DEBUG >= 1; tfr = tic; end
 if FLAGS.DEBUG >= 1; fprintf( 'final reconstruction...');  end
 
-ktraj_scaled = reshape( ktraj_scaled,[nFreqEncoding*ninterleavesPerFrame,numFramesToKeep]);
+ktraj_scaled = reshape( ktraj_scaled, [nFreqEncoding*ninterleavesPerFrame, numFramesToKeep]);
 kdata = reshape( kdata, [nFreqEncoding*ninterleavesPerFrame, numFramesToKeep, nChannelsToChoose]);
 
 x = solveUV( ktraj_scaled, kdata, csm, V, N, nIterations, lambdaSmoothness*Sbasis, useGPU); % nIterations now variable at top, CAC 190220
@@ -188,8 +192,6 @@ if FLAGS.DEBUG >= 1; toc( tfr), end
 %     end
 % end
 
-
-
 %% movie display, CAC 190219
 if FLAGS.DEBUG >= 1; tmv = tic; end
 if FLAGS.DEBUG >= 1; fprintf( 'making movie...');  end
@@ -201,7 +203,9 @@ for idx_t = 1:sy(3)
     Mv(idx_t) = getframe;
 end
 
-movie( Mv);
+movie( Mv, 999);
+
+% save of .mov file or other would go here, *** CAC 190221
 
 if FLAGS.DEBUG >= 1; toc( tmv), end
 
