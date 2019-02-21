@@ -1,6 +1,8 @@
 function [csm, coilimages] = coil_sens_map_NUFFT( kdata, trajectory, N, useGPU, nIterations_csm)
 %function [csm, coilimages] = coil_sens_map_NUFFT( kdata, trajectory, N, useGPU, nIterations_csm )
-% 
+%
+
+% use the varargin scheme here instead for backwards compatibility? *** CAC 190220
 
 [nReadouts, nInterleaves, nFrames, nCh] = size( kdata); 
 
@@ -25,8 +27,8 @@ kdata = reshape( kdata, [nReadouts*nInterleaves*nFrames, nCh]);
 
 for i = 1:nCh
     temp = FT'*kdata(:, i);
-    %coilimages(:, :, i) = reshape( pcg( ATA, temp(:), 1e-6, 70), [N, N]);
-    coilimages(:, :, i) = reshape( pcg( ATA, temp(:), 1e-6, nIterations_csm), [N, N]);  % also pull out threshold in argument/variable, *** CAC 190220
+    %coilimages(:, :, i) = reshape( pcg_quiet( ATA, temp(:), 1e-6, 70), [N, N]);
+    coilimages(:, :, i) = reshape( pcg_quiet( ATA, temp(:), 1e-6, nIterations_csm), [N, N]);  % also pull out threshold in argument/variable, *** CAC 190220
 end
 
 csm = giveEspiritMaps( reshape( coilimages, [size( coilimages, 1), size( coilimages, 2), nCh]));

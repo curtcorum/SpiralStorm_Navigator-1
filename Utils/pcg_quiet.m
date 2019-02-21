@@ -7,11 +7,10 @@ function [x, flag, relres, iter, resvec] = pcg_quiet( varargin)
 
 [x, flag, relres, iter, resvec] = pcg( varargin{:});
 
-if flag == 1; warning('pcg stoped at iteration %d with relative residual %d', iter, relres); end
-if flag == 2; warning('pcg preconditioner is ill conditioned iteration %d and residual %d', iter, relres); end
-if flag == 3; warning('pcg stagnated at iteration %d with relative residual %d', iter, relres); end
-if flag == 4; warning('pcg over/underflow at iteration %d with relative residual %d', iter, relres); end
-
+if flag == 1; warning('pcg_quiet:stopped', 'pcg_quiet stoped at iteration %d with relative residual %d', iter, relres); end
+if flag == 2; warning('pcg_quiet:ill_cond', 'pcg_quiet preconditioner is ill conditioned iteration %d and residual %d', iter, relres); end
+if flag == 3; warning('pcg_quiet:stagnated', 'pcg_quiet stagnated at iteration %d with relative residual %d', iter, relres); end
+if flag == 4; warning('pcg_quiet:over/underflow', 'pcg_quiet over/underflow at iteration %d with relative residual %d', iter, relres); end
 
 end
 

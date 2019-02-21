@@ -56,8 +56,10 @@ sigma = [4.5];
 lam = [0.1];
 
 % new parameters
-nIterations = 15;       %nIterations = 60;   % iterations for final reconstuction
-nIterations_csm = 20;   %nIterations_csm = 70;   % iterations for coil sensitivity map
+nIterations = 15;       %nIterations = 60;      % iterations for final reconstuction
+nIterations_csm = 20;   %nIterations_csm = 70;  % iterations for coil sensitivity map
+eigThresh_1 = 0.02;      %eigThresh_1 = 0.008:  % threshold for picking singular vercors of the calibration matrix (relative to largest singlular value.)
+eigThresh_2 = 0.95;     % eigThresh_2 = 0.95;   % threshold of eigen vector decomposition in image space.
 %%
 % % ==============================================================
 % % Load the data
